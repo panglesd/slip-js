@@ -1,56 +1,78 @@
-export default function (ng) {
-    let engine = ng;
-    this.getEngine = () => this.engine;
-    this.setEngine = (ng) => this.engine = ng;
+export default class {
+  constructor(engine) {
+    // this.engine = engine; // For now this is useless given the usage of controller
 
-    // let mainSlip = mainS;
-    // this.getMainSlip = () => mainSlip;
-    // this.setMainSlip = (slip) => mainSlip = slip;
+    let speedMove = 1;
 
-    let speedMove=1;
-    document.addEventListener("keypress", (ev) => {
-	if(ev.key == "f") { speedMove = (speedMove + 4)%30+1; }    
-	if(ev.key == "r") { engine.getCurrentSlip().refresh(); }    
-	if(ev.key == "#") {
-	    document.querySelectorAll(".slip").forEach((slip) => {slip.style.zIndex = "-1";});
-	    document.querySelectorAll(".background-canvas").forEach((canvas) => {canvas.style.zIndex = "1";});
-	}    
-    });
-    document.addEventListener("keydown", (ev) => {
-	let openWindowHeight = engine.getOpenWindowHeight();
-	let openWindowWidth = engine.getOpenWindowWidth();
-	if(ev.key == "l") { engine.moveWindowRelative( 0                          ,  (speedMove)/openWindowHeight, 0, 0, 0.1); }   // Bas
-	if(ev.key == "o") { engine.moveWindowRelative( 0                          , -(speedMove)/openWindowHeight, 0, 0, 0.1); }  // Haut
-	if(ev.key == "k") { engine.moveWindowRelative(-(speedMove)/openWindowWidth,  0                           , 0, 0, 0.1); }   // Gauche
-	if(ev.key == "m") { engine.moveWindowRelative( (speedMove)/openWindowWidth,  0                           , 0, 0, 0.1); }   // Droite
-	if(ev.key == "i") { engine.moveWindowRelative(0, 0,  0   ,  1, 0.1); }                             // Rotate 
-	if(ev.key == "p") { engine.moveWindowRelative(0, 0,  0   , -1, 0.1); }                             // Unrotate
-	if(ev.key == "z") { engine.moveWindowRelative(0, 0,  0.01,  0, 0.1); }                          // Zoom
-	if(ev.key == "Z") { engine.moveWindowRelative(0, 0, -0.01,  0, 0.1); }                          // Unzoom
-	if(ev.key == "T") {
-	    engine.showToC();
-	    // document.querySelector(".toc-slip").style.display = document.querySelector(".toc-slip").style.display == "none" ? "block" : "none"; 
-	}   
-	if(ev.key == "t") {
-	    // engine.showToC();
-	    document.querySelector(".toc-slip").style.display = document.querySelector(".toc-slip").style.display == "none" ? "block" : "none"; 
-	}   
-	if(ev.key == "ArrowRight") {
-	    console.log(ev);
-	    if(ev.shiftKey)
-		engine.nextSlip();
-	    else    
-		engine.next();
-	}
-	else if (ev.key == "ArrowLeft") {
-	    if(ev.shiftKey)
-		engine.previousSlip();
-	    else    
-		engine.previous();
-	}
-	else if (ev.key == "ArrowUp") {
-	    engine.pop();
-	}
-    });  
-    
-};
+    let ev_keypress = ev => {
+      switch (ev.key) {
+        case "f":
+          speedMove = ((speedMove + 4) % 30) + 1;
+          break;
+        case "r":
+          engine.getCurrentSlip().refresh();
+          break;
+        case "#":
+          document.querySelectorAll(".slip").forEach(slip => {
+            slip.style.zIndex = "-1";
+          });
+          document.querySelectorAll(".background-canvas").forEach(canvas => {
+            canvas.style.zIndex = "1";
+          });
+      }
+    };
+
+    let ev_keydown = ev => {
+      let openWindowHeight = engine.getOpenWindowHeight();
+      let openWindowWidth = engine.getOpenWindowWidth();
+      switch (ev.key) {
+        case "l": // Bas
+          engine.moveWindowRelative(0, speedMove / openWindowHeight, 0, 0, 0.1);
+          break;
+        case "o": // Haut
+          engine.moveWindowRelative(0, -speedMove / openWindowHeight, 0, 0, 0.1);
+          break;
+        case "k": // Gauche
+          engine.moveWindowRelative(-speedMove / openWindowWidth, 0, 0, 0, 0.1);
+          break;
+        case "m": // Droite
+          engine.moveWindowRelative(speedMove / openWindowWidth, 0, 0, 0, 0.1);
+          break;
+        case "i": // Rotate
+          engine.moveWindowRelative(0, 0, 0, 1, 0.1);
+          break;
+        case "p": //Unrotate
+          engine.moveWindowRelative(0, 0, 0, -1, 0.1);
+          break;
+        case "z": // Zoom
+          engine.moveWindowRelative(0, 0, 0.01, 0, 0.1);
+          break;
+        case "Z": // Unzoom
+          engine.moveWindowRelative(0, 0, -0.01, 0, 0.1);
+          break;
+        case "T":
+          engine.showToC();
+          break;
+        case "t":
+          // todo: hideToC ?
+          document.querySelector(".toc-slip").style.display =
+            document.querySelector(".toc-slip").style.display == "none" ? "block" : "none";
+          break;
+        case "ArrowRight":
+          console.log(ev);
+          if (ev.shiftKey) engine.nextSlip();
+          else engine.next();
+          break;
+        case "ArrowLeft":
+          if (ev.shiftKey) engine.previousSlip();
+          else engine.previous();
+          break;
+        case "ArrowUp":
+          engine.pop();
+      }
+    };
+
+    document.addEventListener("keypress", ev_keypress);
+    document.addEventListener("keydown", ev_keydown);
+  }
+}
